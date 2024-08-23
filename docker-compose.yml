@@ -1,0 +1,64 @@
+x-service-default: &service
+  image: graphql-api
+  init: true
+  build:
+    context: ./
+    dockerfile: ./Dockerfile
+  env_file:
+    - ./.env
+  networks:
+    - graphql-api_network
+  volumes:
+    - ./:/graphql-api/:delegated
+
+services:
+  graphql-api:
+    <<: *service
+    working_dir: /graphql-api
+    tty: true
+    command: air -c .air.toml
+    expose:
+      - '1323'
+    ports:
+      - '8888:1323'
+
+  postgresql:
+    container_name: 'graphql-api-postgres'
+    image: postgres:14.5-alpine
+    restart: always
+    volumes:
+      - ./infrastructure/db:/docker-entrypoint-initdb.d
+      - graphql-api-postgres-data:/var/lib/postgresql/data
+      - ./testdata:/testdata
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_DB=graphql-api-db
+      - POSTGRES_PASSWORD=password
+    networks:
+      - graphql-api_network
+    hostname: docker-postgres
+    ports:
+      - 5632:5432
+      
+  postgresql-test:
+    container_name: 'graphql-api-test'
+    image: postgres:14.5-alpine
+    restart: always
+    volumes:
+      - ./testdata:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=graphql-api-user
+      - POSTGRES_DB=graphql-api-db-test
+      - POSTGRES_PASSWORD=password
+    networks:
+      - graphql-api_network
+    hostname: docker-postgres-test
+
+networks:
+  graphql-api_network:
+    external: true
+
+volumes:
+  graphql-api-postgres-data:
+    external:
+      name: graphql-api_postgres-data
