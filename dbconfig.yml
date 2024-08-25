@@ -1,0 +1,5 @@
+development:
+  dialect: postgres
+  datasource: host=docker-postgres dbname=graphql-api-db user=user password=password sslmode=disable
+  dir: infrastructure/db/migrations
+  table: gorp_migrations
