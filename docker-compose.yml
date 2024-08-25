@@ -18,9 +18,9 @@ services:
     tty: true
     command: air -c .air.toml
     expose:
-      - '1323'
+      - '8080'
     ports:
-      - '8888:1323'
+      - '8080:8080'
 
   postgresql:
     container_name: 'graphql-api-postgres'
