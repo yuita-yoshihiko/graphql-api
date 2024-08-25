@@ -1,0 +1,7 @@
+[psql]
+  dbname = "graphql-api-db"
+  host   = "docker-postgres"
+  port   = 5432
+  user   = "user"
+  pass = "password"
+  sslmode= "disable"
