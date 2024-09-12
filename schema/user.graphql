@@ -1,0 +1,11 @@
+# ---------- Query and Mutation -----------
+extend type Query {
+  User(ID: ID!): UserDetail!
+}
+
+# ---------- Response Type -----------
+
+type UserDetail {
+  ID: ID!
+  Name: String!
+}
