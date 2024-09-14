@@ -14,9 +14,15 @@ import (
 var DB *sql.DB
 var txKey = struct{}{}
 
-type dbutils struct {
-	db *sql.DB
-}
+type (
+	DBAdministrator interface {
+		GetDao(ctx context.Context) boil.ContextExecutor
+		Error(err error) error
+	}
+  dbutils struct {
+		db *sql.DB
+	}
+)
 
 func Init() {
 	connection, err := pq.ParseURL(os.Getenv("DATABASE_URL"))
@@ -61,10 +67,17 @@ func DoInTx(ctx context.Context, f func(context.Context) (interface{}, error)) (
 	return v, nil
 }
 
-func (d *dbutils)GetDao(ctx context.Context, db *sql.DB) boil.ContextExecutor {
+func (d *dbutils) GetDao(ctx context.Context) boil.ContextExecutor {
 	tx, ok := ctx.Value(txKey).(*sql.Tx)
 	if ok {
 		return tx
 	}
 	return d.db
+}
+
+func (d *dbutils) Error(err error) error {
+	if err == nil || err == sql.ErrNoRows {
+		return nil
+	}
+	return err
 }
