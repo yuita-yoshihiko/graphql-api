@@ -5,6 +5,7 @@ go 1.23.0
 require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/friendsofgo/errors v0.9.2
+	github.com/lib/pq v1.10.6
 	github.com/vektah/gqlparser/v2 v2.5.16
 	github.com/volatiletech/null v8.0.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.2
