@@ -6,6 +6,6 @@ type Query struct {
 }
 
 type UserDetail struct {
-	ID   int    `json:"ID"`
+	ID   int64  `json:"ID"`
 	Name string `json:"Name"`
 }
