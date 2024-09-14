@@ -6,14 +6,13 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	graphql1 "graphql-api/domain/models/graphql"
 	graphql2 "graphql-api/infrastructure/graphql"
 )
 
 // User is the resolver for the User field.
-func (r *queryResolver) User(ctx context.Context, id int) (*graphql1.UserDetail, error) {
-	panic(fmt.Errorf("not implemented: User - User"))
+func (r *queryResolver) User(ctx context.Context, id int64) (*graphql1.UserDetail, error) {
+	return r.UserUsecase.Fetch(ctx, int64(id))
 }
 
 // Query returns graphql2.QueryResolver implementation.
