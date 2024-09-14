@@ -33,7 +33,7 @@ func Init() {
 	if err != nil {
 		panic(err.Error())
 	}
-	connection += " password=" + os.Getenv("DATABASE_PASSWORD") + " sslmode=" + os.Getenv("POSTGRES_SSLMODE")
+	connection += " password=" + os.Getenv("DATABASE_PASSWORD") + " sslmode=" + os.Getenv("DATABASE_SSL_MODE")
 
 	DB, err = sql.Open("postgres", connection)
 	if err != nil {
