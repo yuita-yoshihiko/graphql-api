@@ -24,6 +24,10 @@ type (
 	}
 )
 
+func NewDBAdministrator(db *sql.DB) DBAdministrator {
+	return &dbutils{db: db}
+}
+
 func Init() {
 	connection, err := pq.ParseURL(os.Getenv("DATABASE_URL"))
 	if err != nil {
