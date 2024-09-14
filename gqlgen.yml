@@ -12,7 +12,6 @@ resolver:
 models:
   ID:
     model:
-      - github.com/99designs/gqlgen/graphql.IntID
       - github.com/99designs/gqlgen/graphql.Int64
   Date:
     model: ./domain/models/graphql.Date
