@@ -17,3 +17,6 @@ migration/up:
 
 migration/down:
 	${RUN} sh -c "sql-migrate down --env='development'"
+
+psql:
+	psql -h 127.0.0.1 -p 5632 -U user graphql-api-db
