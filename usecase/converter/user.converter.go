@@ -7,6 +7,7 @@ import (
 
 type UserConverter interface {
 	ConvertUserModelToGraphQLType(*models.User) (*graphql.UserDetail, error)
+	ConvertUserGraphQLTypeToModel(graphql.CreateUserInput) (*models.User, error)
 }
 
 type userConverterImpl struct {
@@ -20,5 +21,11 @@ func (c *userConverterImpl) ConvertUserModelToGraphQLType(m *models.User) (*grap
 	return &graphql.UserDetail{
 		ID:   m.ID,
 		Name: m.Name,
+	}, nil
+}
+
+func (c *userConverterImpl) ConvertUserGraphQLTypeToModel(input graphql.CreateUserInput) (*models.User, error) {
+	return &models.User{
+		Name: input.Name,
 	}, nil
 }
