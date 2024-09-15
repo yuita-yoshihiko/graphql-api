@@ -10,12 +10,21 @@ import (
 	graphql2 "graphql-api/infrastructure/graphql"
 )
 
+// CreateUser is the resolver for the CreateUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, params graphql1.CreateUserInput) (*graphql1.UserDetail, error) {
+	return r.UserUsecase.Create(ctx, params)
+}
+
 // User is the resolver for the User field.
 func (r *queryResolver) User(ctx context.Context, id int64) (*graphql1.UserDetail, error) {
 	return r.UserUsecase.Fetch(ctx, int64(id))
 }
 
+// Mutation returns graphql2.MutationResolver implementation.
+func (r *Resolver) Mutation() graphql2.MutationResolver { return &mutationResolver{r} }
+
 // Query returns graphql2.QueryResolver implementation.
 func (r *Resolver) Query() graphql2.QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
