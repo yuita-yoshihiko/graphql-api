@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"graphql-api/infrastructure/db"
-	"graphql-api/interface/resolvers/database"
+	"graphql-api/interface/database"
 	"graphql-api/usecase"
 	"graphql-api/usecase/converter"
 )
