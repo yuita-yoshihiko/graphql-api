@@ -2,6 +2,13 @@
 
 package graphql
 
+type CreateUserInput struct {
+	Name string `json:"Name"`
+}
+
+type Mutation struct {
+}
+
 type Query struct {
 }
 
