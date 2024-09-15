@@ -3,9 +3,18 @@ extend type Query {
   User(ID: ID!): UserDetail!
 }
 
+extend type Mutation {
+  CreateUser(params: CreateUserInput!): UserDetail!
+}
+
 # ---------- Response Type -----------
 
 type UserDetail {
   ID: ID!
+  Name: String!
+}
+
+# ---------- Params Type -----------
+input CreateUserInput {
   Name: String!
 }
