@@ -32,3 +32,8 @@ func (r *userRepositoryImpl) Update(ctx context.Context, m *models.User, columns
 	_, err := m.Update(ctx, r.db.GetDao(ctx), boil.Whitelist(columnsToUpdate...))
 	return r.db.Error(err)
 }
+
+func (r *userRepositoryImpl) Delete(ctx context.Context, m *models.User) error {
+	_, err := m.Delete(ctx, r.db.GetDao(ctx))
+	return r.db.Error(err)
+}
