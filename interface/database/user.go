@@ -27,3 +27,8 @@ func (r *userRepositoryImpl) Fetch(ctx context.Context, id int64) (*models.User,
 func (r *userRepositoryImpl) Create(ctx context.Context, m *models.User) error {
 	return r.db.Error(m.Insert(ctx, r.db.GetDao(ctx), boil.Infer()))
 }
+
+func (r *userRepositoryImpl) Update(ctx context.Context, m *models.User, columnsToUpdate []string) error {
+	_, err := m.Update(ctx, r.db.GetDao(ctx), boil.Whitelist(columnsToUpdate...))
+	return r.db.Error(err)
+}
