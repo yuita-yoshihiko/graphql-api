@@ -15,6 +15,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, params graphql1.Creat
 	return r.UserUsecase.Create(ctx, params)
 }
 
+// UpdateUser is the resolver for the UpdateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, params graphql1.UpdateUserInput) (*graphql1.UserDetail, error) {
+	return r.UserUsecase.Update(ctx, params)
+}
+
 // User is the resolver for the User field.
 func (r *queryResolver) User(ctx context.Context, id int64) (*graphql1.UserDetail, error) {
 	return r.UserUsecase.Fetch(ctx, int64(id))
