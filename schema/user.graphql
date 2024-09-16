@@ -5,6 +5,7 @@ extend type Query {
 
 extend type Mutation {
   CreateUser(params: CreateUserInput!): UserDetail!
+  UpdateUser(params: UpdateUserInput!): UserDetail!
 }
 
 # ---------- Response Type -----------
@@ -16,5 +17,10 @@ type UserDetail {
 
 # ---------- Params Type -----------
 input CreateUserInput {
+  Name: String!
+}
+
+input UpdateUserInput {
+  ID: ID!
   Name: String!
 }
