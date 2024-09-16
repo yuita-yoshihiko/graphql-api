@@ -20,6 +20,11 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, params graphql1.Updat
 	return r.UserUsecase.Update(ctx, params)
 }
 
+// DeleteUser is the resolver for the DeleteUser field.
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int64) (*graphql1.UserDetail, error) {
+	return r.UserUsecase.Delete(ctx, int64(id))
+}
+
 // User is the resolver for the User field.
 func (r *queryResolver) User(ctx context.Context, id int64) (*graphql1.UserDetail, error) {
 	return r.UserUsecase.Fetch(ctx, int64(id))
