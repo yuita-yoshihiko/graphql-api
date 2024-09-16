@@ -3,11 +3,14 @@ package converter
 import (
 	"graphql-api/domain/models"
 	"graphql-api/domain/models/graphql"
+	"graphql-api/utils"
 )
 
 type UserConverter interface {
 	ConvertUserModelToGraphQLType(*models.User) (*graphql.UserDetail, error)
 	ConvertUserGraphQLTypeToModel(graphql.CreateUserInput) (*models.User, error)
+	ConvertUserGraphQLTypeToModelUpdate(graphql.UpdateUserInput) (*models.User, error)
+	ConvertRawArgsToDBColumnNames(map[string]interface{}) ([]string, error)
 }
 
 type userConverterImpl struct {
@@ -28,4 +31,16 @@ func (c *userConverterImpl) ConvertUserGraphQLTypeToModel(input graphql.CreateUs
 	return &models.User{
 		Name: input.Name,
 	}, nil
+}
+
+func (c *userConverterImpl) ConvertUserGraphQLTypeToModelUpdate(input graphql.UpdateUserInput) (*models.User, error) {
+	return &models.User{
+		Name: input.Name,
+	}, nil
+}
+
+func (c userConverterImpl) ConvertRawArgsToDBColumnNames(rawArgs map[string]interface{}) ([]string, error) {
+	i := graphql.UserDetail{}
+	m := models.User{}
+	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)
 }
