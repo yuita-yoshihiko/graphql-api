@@ -12,6 +12,11 @@ type Mutation struct {
 type Query struct {
 }
 
+type UpdateUserInput struct {
+	ID   int64  `json:"ID"`
+	Name string `json:"Name"`
+}
+
 type UserDetail struct {
 	ID   int64  `json:"ID"`
 	Name string `json:"Name"`
