@@ -12,6 +12,7 @@ type UserUsecase interface {
 	Fetch(context.Context, int64) (*graphql.UserDetail, error)
 	Create(context.Context, graphql.CreateUserInput) (*graphql.UserDetail, error)
 	Update(context.Context, graphql.UpdateUserInput) (*graphql.UserDetail, error)
+	Delete(context.Context, int64) (*graphql.UserDetail, error)
 }
 
 type userUsecaseImpl struct {
@@ -61,4 +62,15 @@ func (u *userUsecaseImpl) Update(ctx context.Context, input graphql.UpdateUserIn
 		return nil, err
 	}
 	return u.Fetch(ctx, us.ID)
+}
+
+func (u *userUsecaseImpl) Delete(ctx context.Context, id int64) (*graphql.UserDetail, error) {
+	us, err := u.repository.Fetch(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := u.repository.Delete(ctx, us); err != nil {
+		return nil, err
+	}
+	return u.converter.ConvertUserModelToGraphQLType(us)
 }
