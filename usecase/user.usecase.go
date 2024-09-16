@@ -5,11 +5,13 @@ import (
 	"graphql-api/domain/models/graphql"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
+	"graphql-api/utils"
 )
 
 type UserUsecase interface {
 	Fetch(context.Context, int64) (*graphql.UserDetail, error)
 	Create(context.Context, graphql.CreateUserInput) (*graphql.UserDetail, error)
+	Update(context.Context, graphql.UpdateUserInput) (*graphql.UserDetail, error)
 }
 
 type userUsecaseImpl struct {
@@ -40,6 +42,22 @@ func (u *userUsecaseImpl) Create(ctx context.Context, input graphql.CreateUserIn
 		return nil, err
 	}
 	if err := u.repository.Create(ctx, us); err != nil {
+		return nil, err
+	}
+	return u.Fetch(ctx, us.ID)
+}
+
+func (u *userUsecaseImpl) Update(ctx context.Context, input graphql.UpdateUserInput) (*graphql.UserDetail, error) {
+	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetRawArgs(ctx))
+	if err != nil {
+		return nil, err
+	}
+	us, err := u.converter.ConvertUserGraphQLTypeToModelUpdate(input)
+	if err != nil {
+		return nil, err
+	}
+	us.ID = input.ID
+	if err := u.repository.Update(ctx, us, columns); err != nil {
 		return nil, err
 	}
 	return u.Fetch(ctx, us.ID)
