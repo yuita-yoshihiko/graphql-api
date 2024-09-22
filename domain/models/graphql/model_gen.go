@@ -2,22 +2,61 @@
 
 package graphql
 
+type CommentDetail struct {
+	ID      int64       `json:"ID"`
+	User    *UserDetail `json:"user"`
+	Post    *PostDetail `json:"post"`
+	Content string      `json:"content"`
+}
+
+type CreateCommentInput struct {
+	UserID  int64  `json:"userID"`
+	PostID  int64  `json:"postID"`
+	Content string `json:"content"`
+}
+
+type CreatePostInput struct {
+	UserID  int64  `json:"userID"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
 type CreateUserInput struct {
-	Name string `json:"Name"`
+	Name string `json:"name"`
 }
 
 type Mutation struct {
 }
 
+type PostDetail struct {
+	ID       int64            `json:"ID"`
+	User     *UserDetail      `json:"user"`
+	Comments []*CommentDetail `json:"comments"`
+	Title    string           `json:"title"`
+	Content  string           `json:"content"`
+}
+
 type Query struct {
+}
+
+type UpdateCommentInput struct {
+	ID      int64  `json:"ID"`
+	Content string `json:"content"`
+}
+
+type UpdatePostInput struct {
+	ID      int64  `json:"ID"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 type UpdateUserInput struct {
 	ID   int64  `json:"ID"`
-	Name string `json:"Name"`
+	Name string `json:"name"`
 }
 
 type UserDetail struct {
-	ID   int64  `json:"ID"`
-	Name string `json:"Name"`
+	ID    int64         `json:"ID"`
+	Name  string        `json:"name"`
+	Posts []*PostDetail `json:"posts"`
 }
