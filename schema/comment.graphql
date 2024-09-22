@@ -1,0 +1,30 @@
+# ---------- Query and Mutation -----------
+extend type Query {
+  Comment(ID: ID!): CommentDetail!
+}
+
+extend type Mutation {
+  CreateComment(params: CreateCommentInput!): CommentDetail!
+  UpdateComment(params: UpdateCommentInput!): CommentDetail!
+}
+
+# ---------- Response Type -----------
+
+type CommentDetail {
+  ID: ID!
+  user: UserDetail!
+  post: PostDetail!
+  content: String!
+}
+
+# ---------- Params Type -----------
+input CreateCommentInput {
+  userID: ID!
+  postID: ID!
+  content: String!
+}
+
+input UpdateCommentInput {
+  ID: ID!
+  content: String!
+}
