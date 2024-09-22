@@ -13,15 +13,16 @@ extend type Mutation {
 
 type UserDetail {
   ID: ID!
-  Name: String!
+  name: String!
+  posts: [PostDetail!]!
 }
 
 # ---------- Params Type -----------
 input CreateUserInput {
-  Name: String!
+  name: String!
 }
 
 input UpdateUserInput {
   ID: ID!
-  Name: String!
+  name: String!
 }
