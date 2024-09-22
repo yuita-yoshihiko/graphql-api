@@ -30,11 +30,12 @@ func (r *queryResolver) User(ctx context.Context, id int64) (*graphql1.UserDetai
 	return r.UserUsecase.Fetch(ctx, int64(id))
 }
 
-// Mutation returns graphql2.MutationResolver implementation.
-func (r *Resolver) Mutation() graphql2.MutationResolver { return &mutationResolver{r} }
+// Posts is the resolver for the posts field.
+func (r *userDetailResolver) Posts(ctx context.Context, obj *graphql1.UserDetail) ([]*graphql1.PostDetail, error) {
+	return r.PostUsecase.FetchByUserID(ctx, obj.ID)
+}
 
-// Query returns graphql2.QueryResolver implementation.
-func (r *Resolver) Query() graphql2.QueryResolver { return &queryResolver{r} }
+// UserDetail returns graphql2.UserDetailResolver implementation.
+func (r *Resolver) UserDetail() graphql2.UserDetailResolver { return &userDetailResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type userDetailResolver struct{ *Resolver }
