@@ -30,6 +30,7 @@ func (c *commentConverterImpl) ConvertCommentModelToGraphQLType(m *models.Commen
 		Post: &graphql.PostDetail{
 			ID: m.PostID,
 		},
+		Content: m.Content,
 	}, nil
 }
 
