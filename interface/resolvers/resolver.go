@@ -11,9 +11,9 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{
-	UserUsecase usecase.UserUsecase
-	PostUsecase usecase.PostUsecase
+type Resolver struct {
+	UserUsecase    usecase.UserUsecase
+	PostUsecase    usecase.PostUsecase
 	CommentUsecase usecase.CommentUsecase
 }
 
@@ -35,8 +35,8 @@ func NewResolver() *Resolver {
 		converter.NewCommentConverter(),
 	)
 	return &Resolver{
-		UserUsecase: userUsecase,
-		PostUsecase: postUsecase,
+		UserUsecase:    userUsecase,
+		PostUsecase:    postUsecase,
 		CommentUsecase: commentUsecase,
 	}
 }

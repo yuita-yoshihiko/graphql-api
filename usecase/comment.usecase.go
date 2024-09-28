@@ -17,15 +17,15 @@ type CommentUsecase interface {
 
 type commentUsecaseImpl struct {
 	repository repository.CommentRepository
-	converter	converter.CommentConverter
+	converter  converter.CommentConverter
 }
 
 func NewCommentUsecase(r repository.CommentRepository,
 	c converter.CommentConverter,
-	) CommentUsecase {
+) CommentUsecase {
 	return &commentUsecaseImpl{
 		repository: r,
-		converter: c,
+		converter:  c,
 	}
 }
 

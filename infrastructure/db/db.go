@@ -19,7 +19,7 @@ type (
 		GetDao(ctx context.Context) boil.ContextExecutor
 		Error(err error) error
 	}
-  dbutils struct {
+	dbutils struct {
 		db *sql.DB
 	}
 )

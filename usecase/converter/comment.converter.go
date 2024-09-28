@@ -23,7 +23,7 @@ func NewCommentConverter() CommentConverter {
 
 func (c *commentConverterImpl) ConvertCommentModelToGraphQLType(m *models.Comment) (*graphql.CommentDetail, error) {
 	return &graphql.CommentDetail{
-		ID:   m.ID,
+		ID: m.ID,
 		User: &graphql.UserDetail{
 			ID: m.UserID,
 		},
@@ -48,8 +48,8 @@ func (c *commentConverterImpl) ConvertCommentModelsToGraphQLTypes(ms []*models.C
 
 func (c *commentConverterImpl) ConvertCommentGraphQLTypeToModel(input graphql.CreateCommentInput) (*models.Comment, error) {
 	return &models.Comment{
-		UserID: input.UserID,
-		PostID: input.PostID,
+		UserID:  input.UserID,
+		PostID:  input.PostID,
 		Content: input.Content,
 	}, nil
 }

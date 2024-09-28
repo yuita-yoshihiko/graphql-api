@@ -23,7 +23,7 @@ func NewPostConverter() PostConverter {
 
 func (c *postConverterImpl) ConvertPostModelToGraphQLType(m *models.Post) (*graphql.PostDetail, error) {
 	return &graphql.PostDetail{
-		ID:   m.ID,
+		ID: m.ID,
 		User: &graphql.UserDetail{
 			ID: m.UserID,
 		},
@@ -46,15 +46,15 @@ func (c *postConverterImpl) ConvertPostModelsToGraphQLTypes(ms []*models.Post) (
 
 func (c *postConverterImpl) ConvertPostGraphQLTypeToModel(input graphql.CreatePostInput) (*models.Post, error) {
 	return &models.Post{
-		UserID: input.UserID,
-		Title:	input.Title,
+		UserID:  input.UserID,
+		Title:   input.Title,
 		Content: input.Content,
 	}, nil
 }
 
 func (c *postConverterImpl) ConvertPostGraphQLTypeToModelUpdate(input graphql.UpdatePostInput) (*models.Post, error) {
 	return &models.Post{
-		Title:  input.Title,
+		Title:   input.Title,
 		Content: input.Content,
 	}, nil
 }

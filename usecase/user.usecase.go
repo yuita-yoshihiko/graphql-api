@@ -17,15 +17,15 @@ type UserUsecase interface {
 
 type userUsecaseImpl struct {
 	repository repository.UserRepository
-	converter	converter.UserConverter
+	converter  converter.UserConverter
 }
 
 func NewUserUsecase(r repository.UserRepository,
 	c converter.UserConverter,
-	) UserUsecase {
+) UserUsecase {
 	return &userUsecaseImpl{
 		repository: r,
-		converter: c,
+		converter:  c,
 	}
 }
 
