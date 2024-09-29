@@ -3,6 +3,7 @@ package main
 import (
 	"graphql-api/infrastructure/db"
 	"graphql-api/interface/resolvers"
+	"graphql-api/internal/middleware/dataloader"
 	"graphql-api/route"
 	"log"
 
@@ -20,6 +21,8 @@ func main() {
 
 	e.GET("/", route.PlaygroundHandler())
 	g := e.Group("/query")
+
+	g.Use(dataloader.DataLoaderMiddleWare())
 
 	resolver := resolvers.NewResolver()
 
