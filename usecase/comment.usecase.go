@@ -3,9 +3,12 @@ package usecase
 import (
 	"context"
 	"graphql-api/domain/models/graphql"
+	dbDataloader "graphql-api/interface/database/dataloader"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
 	"graphql-api/utils"
+
+	"github.com/graph-gophers/dataloader/v7"
 )
 
 type CommentUsecase interface {
@@ -38,11 +41,10 @@ func (u *commentUsecaseImpl) Fetch(ctx context.Context, id int64) (*graphql.Comm
 }
 
 func (u *commentUsecaseImpl) FetchByPostID(ctx context.Context, id int64) ([]*graphql.CommentDetail, error) {
-	cs, err := u.repository.FetchByPostID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return u.converter.ConvertCommentModelsToGraphQLTypes(cs)
+	return dbDataloader.LoaderFor[dbDataloader.CommentDataloaderKey, dataloader.Interface[int64, []*graphql.CommentDetail]](
+		ctx,
+		dbDataloader.CDataloaderKey,
+	).Load(ctx, id)()
 }
 
 func (u *commentUsecaseImpl) Create(ctx context.Context, input graphql.CreateCommentInput) (*graphql.CommentDetail, error) {
