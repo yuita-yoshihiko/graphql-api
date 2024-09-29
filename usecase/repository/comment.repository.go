@@ -7,8 +7,7 @@ import (
 
 type CommentRepository interface {
 	Fetch(context.Context, int64) (*models.Comment, error)
-	FetchMany(context.Context, []int64) ([]*models.Comment, error)
-	FetchByPostID(context.Context, int64) ([]*models.Comment, error)
+	FetchByPostIDs(context.Context, []int64) ([]*models.Comment, error)
 	Create(context.Context, *models.Comment) error
 	Update(context.Context, *models.Comment, []string) error
 }

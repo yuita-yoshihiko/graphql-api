@@ -24,16 +24,9 @@ func (r *commentRepositoryImpl) Fetch(ctx context.Context, id int64) (*models.Co
 	return comment, r.db.Error(err)
 }
 
-func (r *commentRepositoryImpl) FetchMany(ctx context.Context, ids []int64) ([]*models.Comment, error) {
+func (r *commentRepositoryImpl) FetchByPostIDs(ctx context.Context, postIDs []int64) ([]*models.Comment, error) {
 	comments, err := models.Comments(
-		models.CommentWhere.ID.IN(ids),
-	).All(ctx, r.db.GetDao(ctx))
-	return comments, r.db.Error(err)
-}
-
-func (r *commentRepositoryImpl) FetchByPostID(ctx context.Context, postID int64) ([]*models.Comment, error) {
-	comments, err := models.Comments(
-		models.CommentWhere.PostID.EQ(postID),
+		models.CommentWhere.PostID.IN(postIDs),
 	).All(ctx, r.db.GetDao(ctx))
 	return comments, r.db.Error(err)
 }
