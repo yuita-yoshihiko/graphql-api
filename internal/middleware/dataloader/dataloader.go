@@ -18,7 +18,7 @@ func DataLoaderMiddleWare() echo.MiddlewareFunc {
 			dbAdministrator := db.NewDBAdministrator(db.DB)
 			ctx := context.WithValue(
 				c.Request().Context(),
-				dataloader.CommentDataloaderKey,
+				dataloader.CDataloaderKey,
 				dataloader.NewCommentDataLoader(
 					converter.NewCommentConverter(),
 					database.NewCommentRepository(dbAdministrator),
