@@ -12,8 +12,12 @@ type Dataloader[T comparable, U any] interface {
 	BatchFunc() dataloader.BatchFunc[T, U]
 }
 
-func LoaderFor[T, U any](ctx context.Context, key T) U {
-	return ctx.Value(key).(U)
+func DataloaderFromCtx[T, U any](ctx context.Context, key T) U {
+	l, ok := ctx.Value(key).(U)
+	if !ok {
+		panic(fmt.Sprintf("no loader for key %v", key))
+	}
+	return l
 }
 
 func MakeErrorResults[T comparable, U any](keys []T, err error) []*dataloader.Result[U] {
