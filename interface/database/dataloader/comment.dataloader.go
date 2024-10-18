@@ -58,3 +58,13 @@ func (d *commentDataloaderImpl) BatchFunc() dataloader.BatchFunc[int64, []*graph
 		return SortResults[int64, []*graphql.CommentDetail](keys, commentMap, true)
 	}
 }
+
+func LoadCommentByPostID(ctx context.Context, id int64) ([]*graphql.CommentDetail, error) {
+	loader := DataloaderFromCtx[CommentDataloaderKey, dataloader.Interface[int64, []*graphql.CommentDetail]](ctx, CDataloaderKey)
+	thunk := loader.Load(ctx, id)
+	result, err := thunk()
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}

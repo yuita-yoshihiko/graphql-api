@@ -8,9 +8,7 @@ import (
 	"context"
 	graphql1 "graphql-api/domain/models/graphql"
 	graphql2 "graphql-api/infrastructure/graphql"
-	dbDataloader "graphql-api/interface/database/dataloader"
-
-	"github.com/graph-gophers/dataloader/v7"
+	"graphql-api/interface/database/dataloader"
 )
 
 // CreatePost is the resolver for the CreatePost field.
@@ -25,13 +23,7 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, params graphql1.Updat
 
 // Comments is the resolver for the comments field.
 func (r *postDetailResolver) Comments(ctx context.Context, obj *graphql1.PostDetail) ([]*graphql1.CommentDetail, error) {
-	loader := dbDataloader.DataloaderFromCtx[dbDataloader.CommentDataloaderKey, dataloader.Interface[int64, []*graphql1.CommentDetail]](ctx, dbDataloader.CDataloaderKey)
-	thunk := loader.Load(ctx, obj.ID)
-	result, err := thunk()
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return dataloader.LoadCommentByPostID(ctx, obj.ID)
 }
 
 // Post is the resolver for the Post field.
