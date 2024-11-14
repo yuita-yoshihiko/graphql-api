@@ -40,21 +40,6 @@ services:
     ports:
       - 5632:5432
       
-  postgresql-test:
-    container_name: 'graphql-api-test'
-    image: postgres:14.5-alpine
-    restart: always
-    volumes:
-      - ./testdata:/docker-entrypoint-initdb.d
-    environment:
-      - POSTGRES_USER=graphql-api-user
-      - POSTGRES_DB=graphql-api-db-test
-      - POSTGRES_PASSWORD=password
-    networks:
-      - graphql-api_network
-    hostname: docker-postgres-test
-    ports:
-      - 5433:5432
 
 networks:
   graphql-api_network:

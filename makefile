@@ -20,3 +20,10 @@ migration/down:
 
 psql:
 	psql -h 127.0.0.1 -p 5632 -U user graphql-api-db
+
+test-db-up:
+	docker compose -f ./docker-compose.test-db.yml up -d
+	${RUN} sh -c "sql-migrate up --env='test'"
+
+test-db-down:
+	docker compose -f ./docker-compose.test-db.yml down
