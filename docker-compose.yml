@@ -53,6 +53,8 @@ services:
     networks:
       - graphql-api_network
     hostname: docker-postgres-test
+    ports:
+      - 5433:5432
 
 networks:
   graphql-api_network:
