@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-testfixtures/testfixtures/v3 v3.13.0
+	github.com/google/go-cmp v0.6.0
 	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
