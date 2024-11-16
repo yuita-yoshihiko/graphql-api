@@ -80,7 +80,7 @@ func (d *dbutils) GetDao(ctx context.Context) boil.ContextExecutor {
 }
 
 func (d *dbutils) Error(err error) error {
-	if err == nil || err == sql.ErrNoRows {
+	if err == nil {
 		return nil
 	}
 	return err
