@@ -23,6 +23,7 @@ psql:
 
 test-db-up:
 	docker compose -f ./docker-compose.test-db.yml up -d
+	sleep 5
 	${RUN} sh -c "sql-migrate up --env='test'"
 
 test-db-down:
