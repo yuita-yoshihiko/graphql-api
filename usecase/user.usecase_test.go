@@ -14,7 +14,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestAddInterviewStatusMemoFetch(t *testing.T) {
+func TestUserFetch(t *testing.T) {
 	t.Helper()
 	d := testhelper.LoadFixture(
 		"../",
@@ -68,7 +68,7 @@ func TestAddInterviewStatusMemoFetch(t *testing.T) {
 	}
 }
 
-func TestAddInterviewStatusMemoCreate(t *testing.T) {
+func TestUserCreate(t *testing.T) {
 	t.Helper()
 	d := testhelper.LoadFixture(
 		"../",
@@ -108,7 +108,6 @@ func TestAddInterviewStatusMemoCreate(t *testing.T) {
 				cmpopts.IgnoreFields(
 					graphql.UserDetail{},
 					"ID",
-					"Name",
 				),
 			}
 			if diff := cmp.Diff(tt.want, got, opt); diff != "" {
