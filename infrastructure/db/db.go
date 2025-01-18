@@ -51,7 +51,6 @@ func Init() {
 	DB.SetConnMaxLifetime(300 * time.Second)
 
 	boil.SetDB(DB)
-	boil.DebugMode = true
 }
 
 func DoInTx(ctx context.Context, f func(context.Context) (interface{}, error)) (interface{}, error) {
