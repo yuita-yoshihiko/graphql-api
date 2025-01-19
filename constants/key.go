@@ -1,3 +1,7 @@
 package constants
 
-var RequestKey = struct{}{}
+type requestKey struct{}
+type operationNameKey struct{}
+
+var RequestKey = requestKey{}
+var OperationNameKey = operationNameKey{}
