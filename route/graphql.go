@@ -14,7 +14,7 @@ func DefineGraphQL(r *resolvers.Resolver) echo.HandlerFunc {
 		Resolvers: r,
 	}
 	handler := handler.NewDefaultServer(graphql.NewExecutableSchema(config))
-	handler.SetErrorPresenter(graphql.ErrorHandler)
+	handler.AroundResponses(graphql.LoggerHandler)
 	return func(c echo.Context) error {
 		handler.ServeHTTP(c.Response().Writer, c.Request())
 		return nil
