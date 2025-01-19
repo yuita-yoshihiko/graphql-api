@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var re = regexp.MustCompile(`(\w+)\(.*?\)\s*{`)
+var re = regexp.MustCompile(`(?m)^\s*(?:query|mutation|subscription)?\s*{\s*(\w+)`)
 
 func RequestLoggerHandler(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
 	oc := graphql.GetOperationContext(ctx)
