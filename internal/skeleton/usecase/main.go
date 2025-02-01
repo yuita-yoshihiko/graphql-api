@@ -45,11 +45,11 @@ func (u *{{ .Lower }}UseCaseImpl) Fetch(ctx context.Context, id int64) (*graphql
 	if err != nil {
 		return nil, err
 	}
-	return u.converter.Convert{{ .Upper }}ModelToGraphQLType(m)
+	return u.converter.To{{ .Upper }}Detail(m)
 }
 
 func (u *{{ .Lower }}UseCaseImpl) Create(ctx context.Context, input graphql.Create{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error) {
-	m, err := u.converter.Convert{{ .Upper }}GraphQLTypeToModel(input)
+	m, err := u.converter.To{{ .Upper }}ModelFromCreateInput(input)
 	if err != nil {
 		return nil, err
 	}
@@ -60,11 +60,11 @@ func (u *{{ .Lower }}UseCaseImpl) Create(ctx context.Context, input graphql.Crea
 }
 
 func (u *{{ .Lower }}UseCaseImpl) Update(ctx context.Context, input graphql.Update{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetRawArgs(ctx))
+	columns, err := u.converter.ToDBColumnsFromGraphQLFields(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
 	}
-	m, err := u.converter.Convert{{ .Upper }}GraphQLTypeToModelUpdate(input)
+	m, err := u.converter.To{{ .Upper }}ModelFromUpdateInput(input)
 	if err != nil {
 		return nil, err
 	}

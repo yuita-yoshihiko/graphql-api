@@ -23,7 +23,7 @@ type {{ .Upper }}Converter interface {
 	To{{ .Upper }}ModelFromUpdateInput(graphql.{{ .Upper }}UpdateInput) (*models.{{ .Upper }}, error)
 	To{{ .Upper }}Detail(*models.{{ .Upper }}) (*graphql.{{ .Upper }}Detail, error)
 	To{{ .Upper }}Details([]*models.{{ .Upper }}) ([]*graphql.{{ .Upper }}Detail, error)
-	ToDBColumnNamesFromRawArgs(map[string]any) ([]string, error)
+	ToDBColumnsFromGraphQLFields(map[string]any) ([]string, error)
 }
 
 type {{ .Lower }}ConverterImpl struct {
@@ -62,7 +62,7 @@ func (c {{ .Lower }}ConverterImpl) To{{ .Upper }}Details(ms []*models.{{ .Upper}
 	return details, nil
 }
 
-func (c {{ .Lower }}ConverterImpl) ToDBColumnNamesFromRawArgs(rawArgs map[string]any) ([]string, error) {
+func (c {{ .Lower }}ConverterImpl) ToDBColumnsFromGraphQLFields(rawArgs map[string]any) ([]string, error) {
 	i := graphql.{{ .Upper }}Detail{}
 	m := models.{{ .Upper }}{}
 	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)
