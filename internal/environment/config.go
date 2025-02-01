@@ -4,8 +4,8 @@ var Conf Config
 
 type (
 	Config struct {
-		Env   Env
-		DBEnv DBEnv
+		Env      Env
+		DBEnv    DBEnv
 		Skeleton Skeleton
 	}
 	Env struct {
