@@ -58,10 +58,12 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateComment func(childComplexity int, params graphql1.CreateCommentInput) int
 		CreatePost    func(childComplexity int, params graphql1.CreatePostInput) int
+		CreateStaff   func(childComplexity int, params graphql1.StaffCreateInput) int
 		CreateUser    func(childComplexity int, params graphql1.CreateUserInput) int
 		DeleteUser    func(childComplexity int, id int64) int
 		UpdateComment func(childComplexity int, params graphql1.UpdateCommentInput) int
 		UpdatePost    func(childComplexity int, params graphql1.UpdatePostInput) int
+		UpdateStaff   func(childComplexity int, params graphql1.StaffUpdateInput) int
 		UpdateUser    func(childComplexity int, params graphql1.UpdateUserInput) int
 	}
 
@@ -76,7 +78,13 @@ type ComplexityRoot struct {
 	Query struct {
 		Comment func(childComplexity int, id int64) int
 		Post    func(childComplexity int, id int64) int
+		Staff   func(childComplexity int, id int64) int
 		User    func(childComplexity int, id int64) int
+	}
+
+	StaffDetail struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	UserDetail struct {
@@ -91,6 +99,8 @@ type MutationResolver interface {
 	UpdateComment(ctx context.Context, params graphql1.UpdateCommentInput) (*graphql1.CommentDetail, error)
 	CreatePost(ctx context.Context, params graphql1.CreatePostInput) (*graphql1.PostDetail, error)
 	UpdatePost(ctx context.Context, params graphql1.UpdatePostInput) (*graphql1.PostDetail, error)
+	CreateStaff(ctx context.Context, params graphql1.StaffCreateInput) (*graphql1.StaffDetail, error)
+	UpdateStaff(ctx context.Context, params graphql1.StaffUpdateInput) (*graphql1.StaffDetail, error)
 	CreateUser(ctx context.Context, params graphql1.CreateUserInput) (*graphql1.UserDetail, error)
 	UpdateUser(ctx context.Context, params graphql1.UpdateUserInput) (*graphql1.UserDetail, error)
 	DeleteUser(ctx context.Context, id int64) (*graphql1.UserDetail, error)
@@ -101,6 +111,7 @@ type PostDetailResolver interface {
 type QueryResolver interface {
 	Comment(ctx context.Context, id int64) (*graphql1.CommentDetail, error)
 	Post(ctx context.Context, id int64) (*graphql1.PostDetail, error)
+	Staff(ctx context.Context, id int64) (*graphql1.StaffDetail, error)
 	User(ctx context.Context, id int64) (*graphql1.UserDetail, error)
 }
 type UserDetailResolver interface {
@@ -178,6 +189,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreatePost(childComplexity, args["params"].(graphql1.CreatePostInput)), true
 
+	case "Mutation.CreateStaff":
+		if e.complexity.Mutation.CreateStaff == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateStaff_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateStaff(childComplexity, args["params"].(graphql1.StaffCreateInput)), true
+
 	case "Mutation.CreateUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -225,6 +248,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdatePost(childComplexity, args["params"].(graphql1.UpdatePostInput)), true
+
+	case "Mutation.UpdateStaff":
+		if e.complexity.Mutation.UpdateStaff == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateStaff_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateStaff(childComplexity, args["params"].(graphql1.StaffUpdateInput)), true
 
 	case "Mutation.UpdateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -297,6 +332,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Post(childComplexity, args["ID"].(int64)), true
 
+	case "Query.Staff":
+		if e.complexity.Query.Staff == nil {
+			break
+		}
+
+		args, err := ec.field_Query_Staff_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Staff(childComplexity, args["ID"].(int64)), true
+
 	case "Query.User":
 		if e.complexity.Query.User == nil {
 			break
@@ -308,6 +355,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.User(childComplexity, args["ID"].(int64)), true
+
+	case "StaffDetail.ID":
+		if e.complexity.StaffDetail.ID == nil {
+			break
+		}
+
+		return e.complexity.StaffDetail.ID(childComplexity), true
+
+	case "StaffDetail.name":
+		if e.complexity.StaffDetail.Name == nil {
+			break
+		}
+
+		return e.complexity.StaffDetail.Name(childComplexity), true
 
 	case "UserDetail.ID":
 		if e.complexity.UserDetail.ID == nil {
@@ -335,19 +396,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 }
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
-	rc := graphql.GetOperationContext(ctx)
-	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
+	opCtx := graphql.GetOperationContext(ctx)
+	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateCommentInput,
 		ec.unmarshalInputCreatePostInput,
 		ec.unmarshalInputCreateUserInput,
+		ec.unmarshalInputStaffCreateInput,
+		ec.unmarshalInputStaffUpdateInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdatePostInput,
 		ec.unmarshalInputUpdateUserInput,
 	)
 	first := true
 
-	switch rc.Operation.Operation {
+	switch opCtx.Operation.Operation {
 	case ast.Query:
 		return func(ctx context.Context) *graphql.Response {
 			var response graphql.Response
@@ -355,7 +418,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			if first {
 				first = false
 				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-				data = ec._Query(ctx, rc.Operation.SelectionSet)
+				data = ec._Query(ctx, opCtx.Operation.SelectionSet)
 			} else {
 				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
 					result := <-ec.deferredResults
@@ -385,7 +448,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			data := ec._Mutation(ctx, opCtx.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -505,6 +568,33 @@ input UpdatePostInput {
   content: String!
 }
 `, BuiltIn: false},
+	{Name: "../../schema/staff.graphql", Input: `# ---------- Query and Mutation -----------
+extend type Query {
+  Staff(ID: ID!): StaffDetail!
+}
+
+extend type Mutation {
+  CreateStaff(params: StaffCreateInput!): StaffDetail!
+  UpdateStaff(params: StaffUpdateInput!): StaffDetail!
+}
+
+# ---------- Response Type -----------
+
+type StaffDetail {
+	ID: ID!
+  name: String!
+}
+
+# ---------- Params Type -----------
+input StaffCreateInput {
+	name: String!
+}
+
+input StaffUpdateInput {
+	ID: ID!
+  name: String!
+}
+`, BuiltIn: false},
 	{Name: "../../schema/user.graphql", Input: `# ---------- Query and Mutation -----------
 extend type Query {
   User(ID: ID!): UserDetail!
@@ -544,196 +634,513 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_CreateComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.CreateCommentInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNCreateCommentInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreateCommentInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateComment_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateComment_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.CreateCommentInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.CreateCommentInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNCreateCommentInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreateCommentInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.CreateCommentInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreatePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.CreatePostInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNCreatePostInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreatePostInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreatePost_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreatePost_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.CreatePostInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.CreatePostInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNCreatePostInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreatePostInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.CreatePostInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateStaff_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_CreateStaff_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["params"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateStaff_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.StaffCreateInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.StaffCreateInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNStaffCreateInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffCreateInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.StaffCreateInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.CreateUserInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNCreateUserInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreateUserInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateUser_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateUser_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.CreateUserInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.CreateUserInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNCreateUserInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐCreateUserInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.CreateUserInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int64
-	if tmp, ok := rawArgs["ID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteUser_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["ID"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteUser_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (int64, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["ID"]
+	if !ok {
+		var zeroVal int64
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+	if tmp, ok := rawArgs["ID"]; ok {
+		return ec.unmarshalNID2int64(ctx, tmp)
+	}
+
+	var zeroVal int64
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.UpdateCommentInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNUpdateCommentInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdateCommentInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateComment_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateComment_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.UpdateCommentInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.UpdateCommentInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNUpdateCommentInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdateCommentInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.UpdateCommentInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdatePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.UpdatePostInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNUpdatePostInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdatePostInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdatePost_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdatePost_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.UpdatePostInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.UpdatePostInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNUpdatePostInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdatePostInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.UpdatePostInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateStaff_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_UpdateStaff_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["params"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateStaff_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.StaffUpdateInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.StaffUpdateInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNStaffUpdateInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffUpdateInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.StaffUpdateInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 graphql1.UpdateUserInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalNUpdateUserInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdateUserInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateUser_argsParams(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["params"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateUser_argsParams(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (graphql1.UpdateUserInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["params"]
+	if !ok {
+		var zeroVal graphql1.UpdateUserInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+	if tmp, ok := rawArgs["params"]; ok {
+		return ec.unmarshalNUpdateUserInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐUpdateUserInput(ctx, tmp)
+	}
+
+	var zeroVal graphql1.UpdateUserInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_Comment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int64
-	if tmp, ok := rawArgs["ID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_Comment_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["ID"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_Comment_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (int64, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["ID"]
+	if !ok {
+		var zeroVal int64
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+	if tmp, ok := rawArgs["ID"]; ok {
+		return ec.unmarshalNID2int64(ctx, tmp)
+	}
+
+	var zeroVal int64
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_Post_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int64
-	if tmp, ok := rawArgs["ID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_Post_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["ID"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_Post_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (int64, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["ID"]
+	if !ok {
+		var zeroVal int64
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+	if tmp, ok := rawArgs["ID"]; ok {
+		return ec.unmarshalNID2int64(ctx, tmp)
+	}
+
+	var zeroVal int64
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_Staff_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_Staff_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["ID"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_Staff_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (int64, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["ID"]
+	if !ok {
+		var zeroVal int64
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+	if tmp, ok := rawArgs["ID"]; ok {
+		return ec.unmarshalNID2int64(ctx, tmp)
+	}
+
+	var zeroVal int64
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_User_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int64
-	if tmp, ok := rawArgs["ID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_User_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["ID"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_User_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (int64, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["ID"]
+	if !ok {
+		var zeroVal int64
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+	if tmp, ok := rawArgs["ID"]; ok {
+		return ec.unmarshalNID2int64(ctx, tmp)
+	}
+
+	var zeroVal int64
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query___type_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["name"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query___type_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 bool
-	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
-		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field___Type_enumValues_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["includeDeprecated"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field___Type_enumValues_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (bool, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["includeDeprecated"]
+	if !ok {
+		var zeroVal bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2bool(ctx, tmp)
+	}
+
+	var zeroVal bool
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 bool
-	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
-		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field___Type_fields_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["includeDeprecated"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (bool, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["includeDeprecated"]
+	if !ok {
+		var zeroVal bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2bool(ctx, tmp)
+	}
+
+	var zeroVal bool
+	return zeroVal, nil
 }
 
 // endregion ***************************** args.gotpl *****************************
@@ -1198,6 +1605,128 @@ func (ec *executionContext) fieldContext_Mutation_UpdatePost(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_UpdatePost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateStaff(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateStaff(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateStaff(rctx, fc.Args["params"].(graphql1.StaffCreateInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphql1.StaffDetail)
+	fc.Result = res
+	return ec.marshalNStaffDetail2ᚖgraphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffDetail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateStaff(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_StaffDetail_ID(ctx, field)
+			case "name":
+				return ec.fieldContext_StaffDetail_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StaffDetail", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateStaff_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateStaff(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateStaff(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateStaff(rctx, fc.Args["params"].(graphql1.StaffUpdateInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphql1.StaffDetail)
+	fc.Result = res
+	return ec.marshalNStaffDetail2ᚖgraphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffDetail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateStaff(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_StaffDetail_ID(ctx, field)
+			case "name":
+				return ec.fieldContext_StaffDetail_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StaffDetail", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateStaff_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1763,6 +2292,67 @@ func (ec *executionContext) fieldContext_Query_Post(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_Staff(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_Staff(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Staff(rctx, fc.Args["ID"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphql1.StaffDetail)
+	fc.Result = res
+	return ec.marshalNStaffDetail2ᚖgraphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffDetail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_Staff(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_StaffDetail_ID(ctx, field)
+			case "name":
+				return ec.fieldContext_StaffDetail_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StaffDetail", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_Staff_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_User(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_User(ctx, field)
 	if err != nil {
@@ -1950,6 +2540,94 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StaffDetail_ID(ctx context.Context, field graphql.CollectedField, obj *graphql1.StaffDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StaffDetail_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StaffDetail_ID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StaffDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StaffDetail_name(ctx context.Context, field graphql.CollectedField, obj *graphql1.StaffDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StaffDetail_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StaffDetail_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StaffDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3981,6 +4659,67 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputStaffCreateInput(ctx context.Context, obj interface{}) (graphql1.StaffCreateInput, error) {
+	var it graphql1.StaffCreateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStaffUpdateInput(ctx context.Context, obj interface{}) (graphql1.StaffUpdateInput, error) {
+	var it graphql1.StaffUpdateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ID", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			data, err := ec.unmarshalNID2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context, obj interface{}) (graphql1.UpdateCommentInput, error) {
 	var it graphql1.UpdateCommentInput
 	asMap := map[string]interface{}{}
@@ -4199,6 +4938,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "CreateStaff":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateStaff(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdateStaff":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateStaff(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "CreateUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_CreateUser(ctx, field)
@@ -4396,6 +5149,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "Staff":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_Staff(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "User":
 			field := field
 
@@ -4426,6 +5201,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var staffDetailImplementors = []string{"StaffDetail"}
+
+func (ec *executionContext) _StaffDetail(ctx context.Context, sel ast.SelectionSet, obj *graphql1.StaffDetail) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, staffDetailImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StaffDetail")
+		case "ID":
+			out.Values[i] = ec._StaffDetail_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._StaffDetail_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5014,6 +5833,30 @@ func (ec *executionContext) marshalNPostDetail2ᚖgraphqlᚑapiᚋdomainᚋmodel
 		return graphql.Null
 	}
 	return ec._PostDetail(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNStaffCreateInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffCreateInput(ctx context.Context, v interface{}) (graphql1.StaffCreateInput, error) {
+	res, err := ec.unmarshalInputStaffCreateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStaffDetail2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffDetail(ctx context.Context, sel ast.SelectionSet, v graphql1.StaffDetail) graphql.Marshaler {
+	return ec._StaffDetail(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNStaffDetail2ᚖgraphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffDetail(ctx context.Context, sel ast.SelectionSet, v *graphql1.StaffDetail) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._StaffDetail(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNStaffUpdateInput2graphqlᚑapiᚋdomainᚋmodelsᚋgraphqlᚐStaffUpdateInput(ctx context.Context, v interface{}) (graphql1.StaffUpdateInput, error) {
+	res, err := ec.unmarshalInputStaffUpdateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
