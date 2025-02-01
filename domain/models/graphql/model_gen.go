@@ -39,6 +39,20 @@ type PostDetail struct {
 type Query struct {
 }
 
+type StaffCreateInput struct {
+	Name string `json:"name"`
+}
+
+type StaffDetail struct {
+	ID   int64  `json:"ID"`
+	Name string `json:"name"`
+}
+
+type StaffUpdateInput struct {
+	ID   int64  `json:"ID"`
+	Name string `json:"name"`
+}
+
 type UpdateCommentInput struct {
 	ID      int64  `json:"ID"`
 	Content string `json:"content"`
