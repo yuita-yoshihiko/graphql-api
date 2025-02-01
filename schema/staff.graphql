@@ -1,0 +1,26 @@
+# ---------- Query and Mutation -----------
+extend type Query {
+  Staff(ID: ID!): StaffDetail!
+}
+
+extend type Mutation {
+  CreateStaff(params: StaffCreateInput!): StaffDetail!
+  UpdateStaff(params: StaffUpdateInput!): StaffDetail!
+}
+
+# ---------- Response Type -----------
+
+type StaffDetail {
+	ID: ID!
+  name: String!
+}
+
+# ---------- Params Type -----------
+input StaffCreateInput {
+	name: String!
+}
+
+input StaffUpdateInput {
+	ID: ID!
+  name: String!
+}
