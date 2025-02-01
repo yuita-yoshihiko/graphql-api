@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
+	"graphql-api/utils"
 	"log"
 	"os"
 	"path/filepath"
-	"text/template"
-
-	"github.com/iancoleman/strcase"
 )
 
 const Template = `package usecase
@@ -22,8 +20,8 @@ import (
 
 type {{ .Upper }}UseCase interface {
 	Fetch(context.Context, int64) (*graphql.{{ .Upper }}Detail, error)
-	Create(context.Context, graphql.Create{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error)
-	Update(context.Context, graphql.Update{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error)
+	Create(context.Context, graphql.{{ .Upper }}CreateInput) (*graphql.{{ .Upper }}Detail, error)
+	Update(context.Context, graphql.{{ .Upper }}UpdateInput) (*graphql.{{ .Upper }}Detail, error)
 }
 
 type {{ .Lower }}UseCaseImpl struct {
@@ -48,7 +46,7 @@ func (u *{{ .Lower }}UseCaseImpl) Fetch(ctx context.Context, id int64) (*graphql
 	return u.converter.To{{ .Upper }}Detail(m)
 }
 
-func (u *{{ .Lower }}UseCaseImpl) Create(ctx context.Context, input graphql.Create{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error) {
+func (u *{{ .Lower }}UseCaseImpl) Create(ctx context.Context, input graphql.{{ .Upper }}CreateInput) (*graphql.{{ .Upper }}Detail, error) {
 	m, err := u.converter.To{{ .Upper }}ModelFromCreateInput(input)
 	if err != nil {
 		return nil, err
@@ -59,7 +57,7 @@ func (u *{{ .Lower }}UseCaseImpl) Create(ctx context.Context, input graphql.Crea
 	return u.Fetch(ctx, m.ID)
 }
 
-func (u *{{ .Lower }}UseCaseImpl) Update(ctx context.Context, input graphql.Update{{ .Upper }}Input) (*graphql.{{ .Upper }}Detail, error) {
+func (u *{{ .Lower }}UseCaseImpl) Update(ctx context.Context, input graphql.{ .Upper }}Update{Input) (*graphql.{{ .Upper }}Detail, error) {
 	columns, err := u.converter.ToDBColumnsFromGraphQLFields(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
@@ -77,41 +75,18 @@ func (u *{{ .Lower }}UseCaseImpl) Update(ctx context.Context, input graphql.Upda
 
 `
 
-type name string
-
-func (n name) Upper() string {
-	return strcase.ToCamel(string(n))
-}
-
-func (n name) Lower() string {
-	return strcase.ToLowerCamel(string(n))
-}
-
-var list []name = []name{
-	"staff",
-}
-
 func main() {
 	log.Println("開始")
+	list := utils.GetNameList()
 	for _, m := range list {
-		if err := templateExport(m); err != nil {
+		err := utils.TemplateExport(m, func(name string) (*os.File, error) {
+			return createGoFile(name)
+		}, Template)
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 	log.Println("完了")
-}
-
-func templateExport(m name) error {
-	tpl, err := template.New("").Parse(Template)
-
-	file, err := createGoFile(m.Lower())
-	if err != nil {
-		return err
-	} else if file == nil {
-		return nil
-	}
-	defer file.Close()
-	return tpl.Execute(file, m)
 }
 
 func createGoFile(name string) (*os.File, error) {

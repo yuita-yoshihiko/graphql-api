@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
+	"graphql-api/utils"
 	"log"
 	"os"
 	"path/filepath"
-	"text/template"
 	"time"
-
-	"github.com/iancoleman/strcase"
 )
 
 const Template = `
@@ -28,43 +26,18 @@ DROP TABLE IF EXISTS {{ .Lower }}s;
 
 `
 
-type name string
-
-func (n name) Upper() string {
-	return strcase.ToCamel(string(n))
-}
-
-func (n name) Lower() string {
-	return strcase.ToLowerCamel(string(n))
-}
-
-var list []name = []name{
-	"staff",
-}
-
 func main() {
 	log.Println("開始")
+	list := utils.GetNameList()
 	for _, m := range list {
-		if err := templateExport(m); err != nil {
+		err := utils.TemplateExport(m, func(name string) (*os.File, error) {
+			return createGoFile(name)
+		}, Template)
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 	log.Println("完了")
-}
-
-func templateExport(m name) error {
-	tpl, err := template.New("").Parse(Template)
-	if err != nil {
-		return err
-	}
-	file, err := createGoFile(m.Lower())
-	if err != nil {
-		return err
-	} else if file == nil {
-		return nil
-	}
-	defer file.Close()
-	return tpl.Execute(file, m)
 }
 
 func createGoFile(name string) (*os.File, error) {
