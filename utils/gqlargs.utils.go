@@ -42,38 +42,12 @@ func ConvertRawArgsToColumnNames(rawArgs map[string]interface{}, inputStruct int
 		if strings.HasPrefix(str, "<") {
 			return nil, fmt.Errorf("invalid param found. Error: %s", str)
 		}
-		inputFieldName, err := getJsonFieldName(str, inputStruct)
-		if err != nil {
-			return nil, err
-		}
-		modelField, ok := toType.FieldByName(fieldConverter(inputFieldName))
-		if !ok {
-			return nil, fmt.Errorf("invalid field found. field: %s", inputFieldName)
-		}
-		fieldNames = append(fieldNames, modelField.Tag.Get("boil"))
 	}
 	if modelField, ok := toType.FieldByName("UpdatedAt"); ok {
 		fieldNames = append(fieldNames, modelField.Tag.Get("boil"))
 	}
 
 	return fieldNames, nil
-}
-
-var fieldConvertMap map[string]string = map[string]string{
-	"KidneyGfr":                  "KidneyGFR",
-	"RiskKbn":                    "RiskKBN",
-	"RiskKbnDiabetes":            "RiskKBNDiabetes",
-	"RiskKbnDiabeticNephropathy": "RiskKBNDiabeticNephropathy",
-	"HdlCholesterol":             "HDLCholesterol",
-	"LdlCholesterol":             "LDLCholesterol",
-	"GammaGt":                    "GammaGT",
-}
-
-func fieldConverter(s string) string {
-	if v, ok := fieldConvertMap[s]; ok {
-		return v
-	}
-	return s
 }
 
 func GetArgs(ctx context.Context, argName string) (interface{}, bool) {
