@@ -11,7 +11,7 @@ type StaffConverter interface {
 	ToStaffModelFromUpdateInput(graphql.StaffUpdateInput) (*models.Staff, error)
 	ToStaffDetail(*models.Staff) (*graphql.StaffDetail, error)
 	ToStaffDetails([]*models.Staff) ([]*graphql.StaffDetail, error)
-	ToDBColumnNamesFromRawArgs(map[string]interface{}) ([]string, error)
+	ToDBColumnsFromGraphQLFields(map[string]interface{}) ([]string, error)
 }
 
 type staffConverterImpl struct {
@@ -51,7 +51,7 @@ func (c staffConverterImpl) ToStaffDetails(ms []*models.Staff) ([]*graphql.Staff
 	return details, nil
 }
 
-func (c staffConverterImpl) ToDBColumnNamesFromRawArgs(rawArgs map[string]interface{}) ([]string, error) {
+func (c staffConverterImpl) ToDBColumnsFromGraphQLFields(rawArgs map[string]interface{}) ([]string, error) {
 	i := graphql.StaffDetail{}
 	m := models.Staff{}
 	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)

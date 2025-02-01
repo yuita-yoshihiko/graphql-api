@@ -48,7 +48,7 @@ func (u *staffUseCaseImpl) Create(ctx context.Context, input graphql.StaffCreate
 }
 
 func (u *staffUseCaseImpl) Update(ctx context.Context, input graphql.StaffUpdateInput) (*graphql.StaffDetail, error) {
-	columns, err := u.converter.ToDBColumnNamesFromRawArgs(utils.GetRawArgs(ctx))
+	columns, err := u.converter.ToDBColumnsFromGraphQLFields(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
 	}

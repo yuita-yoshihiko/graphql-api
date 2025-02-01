@@ -48,7 +48,7 @@ func (u *commentUsecaseImpl) Create(ctx context.Context, input graphql.CreateCom
 }
 
 func (u *commentUsecaseImpl) Update(ctx context.Context, input graphql.UpdateCommentInput) (*graphql.CommentDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetRawArgs(ctx))
+	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
 	}

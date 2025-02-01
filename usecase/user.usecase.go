@@ -49,7 +49,7 @@ func (u *userUsecaseImpl) Create(ctx context.Context, input graphql.CreateUserIn
 }
 
 func (u *userUsecaseImpl) Update(ctx context.Context, input graphql.UpdateUserInput) (*graphql.UserDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetRawArgs(ctx))
+	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
 	}

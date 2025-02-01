@@ -10,7 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-func GetRawArgs(ctx context.Context) map[string]interface{} {
+func GetGraphQLFields(ctx context.Context) map[string]interface{} {
 	return graphql.GetFieldContext(ctx).Field.ArgumentMap(graphql.GetOperationContext(ctx).Variables)
 }
 

@@ -57,7 +57,7 @@ func (u *postUsecaseImpl) Create(ctx context.Context, input graphql.CreatePostIn
 }
 
 func (u *postUsecaseImpl) Update(ctx context.Context, input graphql.UpdatePostInput) (*graphql.PostDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetRawArgs(ctx))
+	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
 	if err != nil {
 		return nil, err
 	}
