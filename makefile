@@ -28,3 +28,29 @@ test-db-up:
 
 test-db-down:
 	docker compose -f ./docker-compose.test-db.yml down
+
+output-mg:
+	${RUN} sh -c "go run internal/skeleton/migration/main.go"
+
+output-sc:
+	${RUN} sh -c "go run internal/skeleton/schema/main.go"
+
+output-uc:
+	${RUN} sh -c "go run internal/skeleton/usecase/main.go"
+
+output-cv:
+	${RUN} sh -c "go run internal/skeleton/converter/main.go"
+
+output-rp:
+	${RUN} sh -c "go run internal/skeleton/repository/main.go"
+
+output-db:
+	${RUN} sh -c "go run internal/skeleton/database/main.go"
+
+output-all-skeleton:
+	make output-mg
+	make output-sc
+	make output-uc
+	make output-cv
+	make output-rp
+	make output-db
