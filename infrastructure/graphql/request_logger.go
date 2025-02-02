@@ -10,13 +10,17 @@ import (
 )
 
 func RequestLoggerHandler(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
-	oc := graphql.GetOperationContext(ctx)
 	ctx = context.WithValue(ctx, constants.RequestKey, uuid.New().String())
-	if oc.OperationName != "" {
-		slog.InfoContext(ctx, "Request", "OperationName", oc.OperationName, "UUID", ctx.Value(constants.RequestKey))
-	} else {
+	oc := graphql.GetOperationContext(ctx)
+	if oc.OperationName == "" {
 		slog.InfoContext(ctx, "Request", "OperationName", "No match found", "UUID", ctx.Value(constants.RequestKey))
+		return next(ctx)
 	}
 	ctx = context.WithValue(ctx, constants.OperationNameKey, oc.OperationName)
+	if oc.Operation.Operation == "mutation" {
+		slog.InfoContext(ctx, "Request", "OperationName", oc.OperationName, "Params", oc.Variables, "UUID", ctx.Value(constants.RequestKey))
+	} else {
+		slog.InfoContext(ctx, "Request", "OperationName", oc.OperationName, "UUID", ctx.Value(constants.RequestKey))
+	}
 	return next(ctx)
 }
