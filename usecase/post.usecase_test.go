@@ -110,3 +110,60 @@ func TestPostCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestPostUpdate(t *testing.T) {
+	t.Helper()
+	d := testhelper.LoadFixture(
+		"../",
+		"testdata/posts/fixtures/1",
+	)
+	dbAdministrator := db.NewDBAdministrator(d)
+	uc := usecase.NewPostUsecase(
+		database.NewPostRepository(dbAdministrator),
+		converter.NewPostConverter(),
+	)
+	ctx := context.Background()
+
+	tests := []struct {
+		name    string
+		args    graphql.UpdatePostInput
+		want    *graphql.PostDetail
+		wantErr bool
+	}{
+		{
+			name: "正常に更新できる",
+			args: graphql.UpdatePostInput{
+				ID:      1,
+				Title:   "更新テスト",
+				Content: "更新テスト",
+			},
+			want: &graphql.PostDetail{
+				ID: 1,
+				User: &graphql.UserDetail{
+					ID: 1,
+				},
+				Title:   "更新テスト",
+				Content: "更新テスト",
+			},
+			wantErr: false,
+		},
+		{
+			name: "データが存在しない場合エラーになる",
+			args: graphql.UpdatePostInput{
+				ID:      2,
+				Title:   "更新テスト",
+				Content: "更新テスト",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := uc.Update(ctx, tt.args)
+			if (err != nil) != tt.wantErr {
+				t.Error(err)
+			}
+			testhelper.AssertResponse(t, tt.want, got)
+		})
+	}
+}
