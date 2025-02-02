@@ -5,7 +5,6 @@ import (
 	"graphql-api/domain/models/graphql"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
-	"graphql-api/utils"
 )
 
 type StaffUseCase interface {
@@ -48,10 +47,7 @@ func (u *staffUseCaseImpl) Create(ctx context.Context, input graphql.StaffCreate
 }
 
 func (u *staffUseCaseImpl) Update(ctx context.Context, input graphql.StaffUpdateInput) (*graphql.StaffDetail, error) {
-	columns, err := u.converter.ToDBColumnsFromGraphQLFields(utils.GetGraphQLFields(ctx))
-	if err != nil {
-		return nil, err
-	}
+	columns := u.converter.ToDBColumnsFromGraphQLFields()
 	m, err := u.converter.ToStaffModelFromUpdateInput(input)
 	if err != nil {
 		return nil, err

@@ -5,7 +5,6 @@ import (
 	"graphql-api/domain/models/graphql"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
-	"graphql-api/utils"
 )
 
 type PostUsecase interface {
@@ -57,10 +56,7 @@ func (u *postUsecaseImpl) Create(ctx context.Context, input graphql.CreatePostIn
 }
 
 func (u *postUsecaseImpl) Update(ctx context.Context, input graphql.UpdatePostInput) (*graphql.PostDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
-	if err != nil {
-		return nil, err
-	}
+	columns := u.converter.ConvertRawArgsToDBColumnNames()
 	p, err := u.converter.ConvertPostGraphQLTypeToModelUpdate(input)
 	if err != nil {
 		return nil, err

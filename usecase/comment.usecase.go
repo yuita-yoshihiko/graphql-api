@@ -5,7 +5,6 @@ import (
 	"graphql-api/domain/models/graphql"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
-	"graphql-api/utils"
 )
 
 type CommentUsecase interface {
@@ -48,10 +47,7 @@ func (u *commentUsecaseImpl) Create(ctx context.Context, input graphql.CreateCom
 }
 
 func (u *commentUsecaseImpl) Update(ctx context.Context, input graphql.UpdateCommentInput) (*graphql.CommentDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
-	if err != nil {
-		return nil, err
-	}
+	columns := u.converter.ConvertRawArgsToDBColumnNames()
 	c, err := u.converter.ConvertCommentGraphQLTypeToModelUpdate(input)
 	if err != nil {
 		return nil, err

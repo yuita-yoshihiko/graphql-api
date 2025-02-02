@@ -11,7 +11,7 @@ type CommentConverter interface {
 	ConvertCommentModelsToGraphQLTypes([]*models.Comment) ([]*graphql.CommentDetail, error)
 	ConvertCommentGraphQLTypeToModel(graphql.CreateCommentInput) (*models.Comment, error)
 	ConvertCommentGraphQLTypeToModelUpdate(graphql.UpdateCommentInput) (*models.Comment, error)
-	ConvertRawArgsToDBColumnNames(map[string]interface{}) ([]string, error)
+	ConvertRawArgsToDBColumnNames() []string
 }
 
 type commentConverterImpl struct {
@@ -60,8 +60,8 @@ func (c *commentConverterImpl) ConvertCommentGraphQLTypeToModelUpdate(input grap
 	}, nil
 }
 
-func (c commentConverterImpl) ConvertRawArgsToDBColumnNames(rawArgs map[string]interface{}) ([]string, error) {
-	i := graphql.CommentDetail{}
+func (c commentConverterImpl) ConvertRawArgsToDBColumnNames() []string {
 	m := models.Comment{}
-	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)
+	i := graphql.CommentDetail{}
+	return utils.ConvertUpdateInputToDBColumnNames(m, i)
 }

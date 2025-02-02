@@ -29,32 +29,22 @@ func getJsonFieldName(tag string, s interface{}) (string, error) {
 	return "", fmt.Errorf("cannot find tag: %s", tag)
 }
 
-func ConvertRawArgsToColumnNames(rawArgs map[string]interface{}, inputStruct interface{}, modelStruct interface{}) (fieldNames []string, err error) {
-	if reflect.TypeOf(rawArgs["params"]).Kind() != reflect.Map {
-		return fieldNames, errors.New("invalid type")
-	}
-
-	m := reflect.ValueOf(rawArgs["params"]).MapKeys()
-	toType := reflect.TypeOf(modelStruct)
-
-	for _, k := range m {
-		str := k.String()
-		if strings.HasPrefix(str, "<") {
-			return nil, fmt.Errorf("invalid param found. Error: %s", str)
+func ConvertUpdateInputToDBColumnNames(m, g interface{}) []string {
+	var columns []string
+	mrt := reflect.TypeOf(m)
+	grt := reflect.TypeOf(g)
+	for i := 0; i < mrt.NumField(); i++ {
+		mf := mrt.Field(i)
+		if mf.Name == "UpdatedAt" {
+			columns = append(columns, "updated_at")
+		}
+		for i := 0; i < grt.NumField(); i++ {
+			gf := grt.Field(i)
+			if mf.Name == gf.Name {
+				columns = append(columns, mf.Tag.Get(`boil`))
+				break
+			}
 		}
 	}
-	if modelField, ok := toType.FieldByName("UpdatedAt"); ok {
-		fieldNames = append(fieldNames, modelField.Tag.Get("boil"))
-	}
-
-	return fieldNames, nil
-}
-
-func GetArgs(ctx context.Context, argName string) (interface{}, bool) {
-	v, ok := graphql.GetFieldContext(ctx).Parent.Args[argName]
-	fmt.Println(v, ok)
-	if ok {
-		return v, true
-	}
-	return nil, false
+	return columns
 }

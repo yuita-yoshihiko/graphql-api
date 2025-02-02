@@ -5,7 +5,6 @@ import (
 	"graphql-api/domain/models/graphql"
 	"graphql-api/usecase/converter"
 	"graphql-api/usecase/repository"
-	"graphql-api/utils"
 )
 
 type UserUsecase interface {
@@ -49,10 +48,7 @@ func (u *userUsecaseImpl) Create(ctx context.Context, input graphql.CreateUserIn
 }
 
 func (u *userUsecaseImpl) Update(ctx context.Context, input graphql.UpdateUserInput) (*graphql.UserDetail, error) {
-	columns, err := u.converter.ConvertRawArgsToDBColumnNames(utils.GetGraphQLFields(ctx))
-	if err != nil {
-		return nil, err
-	}
+	columns := u.converter.ConvertRawArgsToDBColumnNames()
 	us, err := u.converter.ConvertUserGraphQLTypeToModelUpdate(input)
 	if err != nil {
 		return nil, err

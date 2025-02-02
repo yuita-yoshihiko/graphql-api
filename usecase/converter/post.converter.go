@@ -11,7 +11,7 @@ type PostConverter interface {
 	ConvertPostModelsToGraphQLTypes([]*models.Post) ([]*graphql.PostDetail, error)
 	ConvertPostGraphQLTypeToModel(graphql.CreatePostInput) (*models.Post, error)
 	ConvertPostGraphQLTypeToModelUpdate(graphql.UpdatePostInput) (*models.Post, error)
-	ConvertRawArgsToDBColumnNames(map[string]interface{}) ([]string, error)
+	ConvertRawArgsToDBColumnNames() []string
 }
 
 type postConverterImpl struct {
@@ -59,8 +59,8 @@ func (c *postConverterImpl) ConvertPostGraphQLTypeToModelUpdate(input graphql.Up
 	}, nil
 }
 
-func (c postConverterImpl) ConvertRawArgsToDBColumnNames(rawArgs map[string]interface{}) ([]string, error) {
-	i := graphql.PostDetail{}
+func (c postConverterImpl) ConvertRawArgsToDBColumnNames() []string {
 	m := models.Post{}
-	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)
+	i := graphql.PostDetail{}
+	return utils.ConvertUpdateInputToDBColumnNames(m, i)
 }

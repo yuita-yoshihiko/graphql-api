@@ -10,7 +10,7 @@ type UserConverter interface {
 	ConvertUserModelToGraphQLType(*models.User) (*graphql.UserDetail, error)
 	ConvertUserGraphQLTypeToModel(graphql.CreateUserInput) (*models.User, error)
 	ConvertUserGraphQLTypeToModelUpdate(graphql.UpdateUserInput) (*models.User, error)
-	ConvertRawArgsToDBColumnNames(map[string]interface{}) ([]string, error)
+	ConvertRawArgsToDBColumnNames() []string
 }
 
 type userConverterImpl struct {
@@ -39,8 +39,8 @@ func (c *userConverterImpl) ConvertUserGraphQLTypeToModelUpdate(input graphql.Up
 	}, nil
 }
 
-func (c userConverterImpl) ConvertRawArgsToDBColumnNames(rawArgs map[string]interface{}) ([]string, error) {
-	i := graphql.UserDetail{}
+func (c userConverterImpl) ConvertRawArgsToDBColumnNames() []string {
 	m := models.User{}
-	return utils.ConvertRawArgsToColumnNames(rawArgs, i, m)
+	i := graphql.UserDetail{}
+	return utils.ConvertUpdateInputToDBColumnNames(m, i)
 }
