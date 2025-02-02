@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
+	"github.com/google/go-cmp/cmp"
 	"github.com/joho/godotenv"
 	"github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/boil"
@@ -46,4 +48,10 @@ func LoadFixture(workDir, fixtureDir string) *sql.DB {
 		panic(err)
 	}
 	return db
+}
+
+func AssertResponse(t *testing.T, got, want interface{}) {
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Returned value is not want.\nDiff: \n%s", diff)
+	}
 }
