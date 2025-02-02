@@ -13,7 +13,7 @@ func ResponseLoggerHandler(ctx context.Context, next graphql.ResponseHandler) *g
 	if response.Errors == nil {
 		slog.InfoContext(ctx, "GraphQL Operation", "OperationName", ctx.Value(constants.OperationNameKey), "UUID", ctx.Value(constants.RequestKey))
 	} else {
-		slog.InfoContext(ctx, "GraphQL Operation", "OperationName", ctx.Value(constants.OperationNameKey), "Error", response.Errors, "UUID", ctx.Value(constants.RequestKey))
+		slog.ErrorContext(ctx, "GraphQL Operation", "OperationName", ctx.Value(constants.OperationNameKey), "ErrorInfo", response.Errors, "UUID", ctx.Value(constants.RequestKey))
 	}
 	return response
 }
